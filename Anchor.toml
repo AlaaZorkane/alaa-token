@@ -1,0 +1,15 @@
+[programs.localnet]
+alaatoken = "FWtd4pWuYbCTVVCJ8UjCBdfMYeueSQdgH4uNVx5o6DBZ"
+
+[programs.devnet]
+alaatoken = "FWtd4pWuYbCTVVCJ8UjCBdfMYeueSQdgH4uNVx5o6DBZ"
+
+[registry]
+url = "https://anchor.projectserum.com"
+
+[provider]
+cluster = "devnet"
+wallet = "/home/alaa/.config/solana/id.json"
+
+[scripts]
+test = "yarn vitest"
