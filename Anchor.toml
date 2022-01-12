@@ -1,14 +1,14 @@
 [programs.localnet]
-alaatoken = "FWtd4pWuYbCTVVCJ8UjCBdfMYeueSQdgH4uNVx5o6DBZ"
+alaatoken = "7vHLYGEkX8TnsqRW1bKLUAFPpwazpebBRNAF1AKdKkQm"
 
 [programs.devnet]
-alaatoken = "FWtd4pWuYbCTVVCJ8UjCBdfMYeueSQdgH4uNVx5o6DBZ"
+alaatoken = "7vHLYGEkX8TnsqRW1bKLUAFPpwazpebBRNAF1AKdKkQm"
 
 [registry]
 url = "https://anchor.projectserum.com"
 
 [provider]
-cluster = "devnet"
+cluster = "localnet"
 wallet = "/home/alaa/.config/solana/id.json"
 
 [scripts]

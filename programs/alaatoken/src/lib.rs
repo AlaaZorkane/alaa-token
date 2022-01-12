@@ -7,7 +7,7 @@ use anchor_spl::token::{self, InitializeMint, Mint, MintTo, Token, CloseAccount}
 use errors::ErrorCode;
 use state::TokenVaultAccount;
 
-declare_id!("FWtd4pWuYbCTVVCJ8UjCBdfMYeueSQdgH4uNVx5o6DBZ");
+declare_id!("7vHLYGEkX8TnsqRW1bKLUAFPpwazpebBRNAF1AKdKkQm");
 
 #[program]
 pub mod alaatoken {
@@ -39,7 +39,7 @@ pub mod alaatoken {
     }
 
     pub fn reset(ctx: Context<Reset>, bump: u8) -> ProgramResult {
-        let seed = &[&[b"ALAA_TOKEN_VAULT", bytemuck::bytes_of(&bump)][..]];
+        let seed = &[&[TOKEN_PDA_SEED, bytemuck::bytes_of(&bump)][..]];
         let cpi_accounts = CloseAccount {
             account: ctx.accounts.token.to_account_info(),
             destination: ctx.accounts.authority.to_account_info(),
@@ -50,6 +50,7 @@ pub mod alaatoken {
 
         token::close_account(cpi_ctx).unwrap();
         msg!("bump: {}", bump);
+        // msg!("cpi context: {:?}", cpi_ctx.program);
         Ok(())
     }
 
@@ -121,8 +122,7 @@ pub struct Reset<'info> {
         mut,
         seeds = [alaatoken::TOKEN_PDA_SEED],
         bump = bump,
-        has_one = authority,
-        // close = authority
+        has_one = authority
     )]
     vault: Account<'info, TokenVaultAccount>,
     #[account(
