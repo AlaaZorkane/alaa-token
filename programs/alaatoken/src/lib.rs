@@ -1,73 +1,126 @@
+pub mod errors;
+pub mod state;
+
 use anchor_lang::prelude::*;
+use anchor_spl::token::{self, InitializeMint, Mint, MintTo, Token};
+
+use errors::ErrorCode;
+use state::TokenVaultAccount;
 
 declare_id!("FWtd4pWuYbCTVVCJ8UjCBdfMYeueSQdgH4uNVx5o6DBZ");
 
 #[program]
 pub mod alaatoken {
     use super::*;
-    pub fn initialize(ctx: Context<Initialize>, bump: u8) -> ProgramResult {
+
+    pub const DEFAULT_MAX_SUPPLY: u64 = 100_000; // in SOL
+    pub const TOKEN_PDA_SEED: &[u8] = b"ALAA_TOKEN_VAULT";
+
+    pub fn initialize(ctx: Context<InitializeToken>, bump: u8) -> ProgramResult {
+        let vault = ctx.accounts.vault.clone();
+
+        if vault.is_initialized {
+            return Err(ErrorCode::AlreadyInitialized.into());
+        }
+
+        token::initialize_mint(ctx.accounts.into(), 0, &vault.key(), Some(&vault.key())).unwrap();
+
+        let vault = &mut ctx.accounts.vault;
+        vault.bump = bump;
+        vault.initial_mint_amount = DEFAULT_MAX_SUPPLY;
+        vault.is_initialized = true;
+        vault.is_minted = false;
+        vault.is_freezed = false;
+        vault.authority = *ctx.accounts.authority.key;
+
         Ok(())
     }
 
-    pub fn update(ctx: Context<Update>, data: String, bump: u8) -> ProgramResult {
+    pub fn initial_mint(ctx: Context<InitialMint>) -> ProgramResult {
+        let vault = ctx.accounts.vault.clone();
+
+        if !vault.is_initialized {
+            return Err(ErrorCode::NotInitialized.into());
+        }
+
+        if vault.is_minted {
+            return Err(ErrorCode::AlreadyMinted.into());
+        }
+
+        token::mint_to(ctx.accounts.into(), vault.initial_mint_amount).unwrap();
+
         let vault = &mut ctx.accounts.vault;
-        let len = data.len();
-
-        if data.contains("alaa") {
-            return Err(ErrorCode::NoAlaa.into());
-        };
-
-        if len > 16 {
-            return Err(ErrorCode::TooLong.into());
-        };
-
-        vault.data = data;
-
+        vault.is_minted = true;
         Ok(())
     }
 }
 
 #[derive(Accounts)]
 #[instruction(bump: u8)]
-pub struct Initialize<'info> {
+pub struct InitializeToken<'info> {
     #[account(
         init_if_needed,
-        seeds = [user.key.as_ref()],
+        payer = authority,
+        seeds = [alaatoken::TOKEN_PDA_SEED],
         bump = bump,
-        payer = user,
-        // header + borsch length + string
-        space = 8 + 4 + 16
+        space = 8 + TokenVaultAccount::LEN
     )]
-    vault: Account<'info, VaultAccount>,
+    vault: Account<'info, TokenVaultAccount>,
+    #[account(
+        init,
+        payer = authority,
+        space = Mint::LEN,
+        signer
+    )]
+    token: AccountInfo<'info>,
     #[account(mut)]
-    user: Signer<'info>,
+    authority: Signer<'info>,
+    token_program: Program<'info, Token>,
     system_program: Program<'info, System>,
+    rent: Sysvar<'info, Rent>,
+}
+
+impl<'a, 'b, 'c, 'info> From<&mut InitializeToken<'info>>
+    for CpiContext<'a, 'b, 'c, 'info, InitializeMint<'info>>
+{
+    fn from(
+        accounts: &mut InitializeToken<'info>,
+    ) -> CpiContext<'a, 'b, 'c, 'info, InitializeMint<'info>> {
+        let cpi_accounts = InitializeMint {
+            mint: accounts.token.to_account_info(),
+            rent: accounts.rent.to_account_info(),
+        };
+
+        let cpi_program = accounts.token_program.to_account_info();
+        CpiContext::new(cpi_program, cpi_accounts)
+    }
 }
 
 #[derive(Accounts)]
-#[instruction(data: String, bump: u8)]
-pub struct Update<'info> {
+#[instruction(bump: u8)]
+pub struct InitialMint<'info> {
     #[account(
-        seeds = [user.key.as_ref()],
+        seeds = [alaatoken::TOKEN_PDA_SEED],
         bump = bump,
-        mut,
+        has_one = authority,
+        mut
     )]
-    vault: Account<'info, VaultAccount>,
-    #[account()]
-    user: Signer<'info>,
+    vault: Account<'info, TokenVaultAccount>,
+    authority: Signer<'info>,
+    token_program: Program<'info, Token>,
 }
 
-#[account]
-pub struct VaultAccount {
-    data: String,
-}
+impl<'a, 'b, 'c, 'info> From<&mut InitialMint<'info>>
+    for CpiContext<'a, 'b, 'c, 'info, MintTo<'info>>
+{
+    fn from(accounts: &mut InitialMint<'info>) -> CpiContext<'a, 'b, 'c, 'info, MintTo<'info>> {
+        let cpi_accounts = MintTo {
+            to: accounts.vault.to_account_info(),
+            authority: accounts.vault.to_account_info(),
+            mint: accounts.vault.to_account_info(),
+        };
 
-#[error]
-pub enum ErrorCode {
-    #[msg("No usage of the word alaa >:(")]
-    NoAlaa,
-    #[msg("Max 16 characters!")]
-    TooLong,
-    #[msg("Already initialized")]
-    AlreadyInitialized,
+        let cpi_program = accounts.token_program.to_account_info();
+        CpiContext::new(cpi_program, cpi_accounts)
+    }
 }
