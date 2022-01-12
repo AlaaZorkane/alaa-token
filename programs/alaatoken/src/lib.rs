@@ -2,7 +2,7 @@ pub mod errors;
 pub mod state;
 
 use anchor_lang::prelude::*;
-use anchor_spl::token::{self, InitializeMint, Mint, MintTo, Token};
+use anchor_spl::token::{self, InitializeMint, Mint, MintTo, Token, CloseAccount};
 
 use errors::ErrorCode;
 use state::TokenVaultAccount;
@@ -11,6 +11,8 @@ declare_id!("FWtd4pWuYbCTVVCJ8UjCBdfMYeueSQdgH4uNVx5o6DBZ");
 
 #[program]
 pub mod alaatoken {
+    use anchor_lang::__private::bytemuck;
+
     use super::*;
 
     pub const DEFAULT_MAX_SUPPLY: u64 = 100_000; // in SOL
@@ -33,6 +35,21 @@ pub mod alaatoken {
         vault.is_freezed = false;
         vault.authority = *ctx.accounts.authority.key;
 
+        Ok(())
+    }
+
+    pub fn reset(ctx: Context<Reset>, bump: u8) -> ProgramResult {
+        let seed = &[&[b"ALAA_TOKEN_VAULT", bytemuck::bytes_of(&bump)][..]];
+        let cpi_accounts = CloseAccount {
+            account: ctx.accounts.token.to_account_info(),
+            destination: ctx.accounts.authority.to_account_info(),
+            authority: ctx.accounts.vault.to_account_info()
+        };
+        let cpi_program = ctx.accounts.token_program.to_account_info();
+        let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, seed);
+
+        token::close_account(cpi_ctx).unwrap();
+        msg!("bump: {}", bump);
         Ok(())
     }
 
@@ -70,6 +87,7 @@ pub struct InitializeToken<'info> {
         init,
         payer = authority,
         space = Mint::LEN,
+        owner = token_program.key(), 
         signer
     )]
     token: AccountInfo<'info>,
@@ -98,12 +116,34 @@ impl<'a, 'b, 'c, 'info> From<&mut InitializeToken<'info>>
 
 #[derive(Accounts)]
 #[instruction(bump: u8)]
-pub struct InitialMint<'info> {
+pub struct Reset<'info> {
     #[account(
+        mut,
         seeds = [alaatoken::TOKEN_PDA_SEED],
         bump = bump,
         has_one = authority,
-        mut
+        // close = authority
+    )]
+    vault: Account<'info, TokenVaultAccount>,
+    #[account(
+        mut,
+        owner = token_program.key(),
+    )]
+    token: AccountInfo<'info>,
+    #[account(mut)]
+    authority: Signer<'info>,
+    token_program: Program<'info, Token>,
+    system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+#[instruction(bump: u8)]
+pub struct InitialMint<'info> {
+    #[account(
+        mut,
+        seeds = [alaatoken::TOKEN_PDA_SEED],
+        bump = bump,
+        has_one = authority
     )]
     vault: Account<'info, TokenVaultAccount>,
     authority: Signer<'info>,

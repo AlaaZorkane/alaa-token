@@ -9,6 +9,8 @@ import {
   SYSVAR_RENT_PUBKEY,
 } from "@solana/web3.js";
 import { Alaatoken } from "../target/types/alaatoken";
+import fs from "fs/promises";
+import { getTokenId } from "./utils";
 
 export class Processor {
   private connection: Connection;
@@ -34,7 +36,6 @@ export class Processor {
     const token = new Keypair();
 
     console.log("token:", token.publicKey.toBase58());
-
     console.log("pda:", vaultPDA.toBase58());
 
     const tx = await this.program.rpc.initialize(bump, {
@@ -47,6 +48,31 @@ export class Processor {
         rent: SYSVAR_RENT_PUBKEY,
       },
       signers: [token, this.authority.payer],
+    });
+
+    await fs.writeFile("token.md", token.publicKey.toBase58(), "utf8");
+    console.log(tx);
+  }
+
+  async reset() {
+    const [vaultPDA, bump] = await PublicKey.findProgramAddress(
+      this.TOKEN_PDA_SEED,
+      this.program.programId
+    );
+    const token = await getTokenId();
+
+    console.log("token:", token.toBase58());
+    console.log("pda:", vaultPDA.toBase58());
+
+    const tx = await this.program.rpc.reset(bump, {
+      accounts: {
+        authority: this.authority.publicKey,
+        systemProgram: SystemProgram.programId,
+        tokenProgram: TOKEN_PROGRAM_ID,
+        token,
+        vault: vaultPDA,
+      },
+      signers: [this.authority.payer],
     });
 
     console.log(tx);
