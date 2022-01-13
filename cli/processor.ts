@@ -14,7 +14,7 @@ import {
 } from "@solana/web3.js";
 import { Alaatoken } from "../target/types/alaatoken";
 import fs from "fs/promises";
-import { getMintId, getVaultTokenId } from "./utils";
+import { getMintId, getWalletId } from "./utils";
 
 export class Processor {
   private connection: Connection;
@@ -44,20 +44,20 @@ export class Processor {
     console.log("mint:", mint.publicKey.toBase58());
     console.log("pda:", vaultPDA.toBase58());
 
-    const vaultTokens = await Token.getAssociatedTokenAddress(
+    const wallet = await Token.getAssociatedTokenAddress(
       ASSOCIATED_TOKEN_PROGRAM_ID,
       TOKEN_PROGRAM_ID,
       mint.publicKey,
       vaultPDA,
       true
     );
-    console.log("vault tokens:", vaultTokens.toBase58());
+    console.log("vault tokens:", wallet.toBase58());
 
     const tx = await this.program.rpc.initialize(bump, {
       accounts: {
         vault: vaultPDA,
         mint: mint.publicKey,
-        vaultTokens,
+        wallet,
         authority: this.authority.publicKey,
         systemProgram: SystemProgram.programId,
         tokenProgram: TOKEN_PROGRAM_ID,
@@ -70,7 +70,7 @@ export class Processor {
     console.log(tx);
 
     await fs.writeFile("mint.md", mint.publicKey.toBase58(), "utf8");
-    await fs.writeFile("token.md", vaultTokens.toBase58(), "utf8");
+    await fs.writeFile("wallet.md", wallet.toBase58(), "utf8");
   }
 
   async reset() {
@@ -79,17 +79,18 @@ export class Processor {
       this.program.programId
     );
     const mint = await getMintId();
-    const vaultTokens = await getVaultTokenId();
+    const wallet = await getWalletId();
 
     console.log("mint:", mint.toBase58());
     console.log("pda:", vaultPDA.toBase58());
-    console.log("vault tokens:", vaultTokens.toBase58());
+    console.log("vault tokens:", wallet.toBase58());
 
     const tx = await this.program.rpc.reset({
       accounts: {
         authority: this.authority.publicKey,
         vault: vaultPDA,
-        vaultTokens,
+        wallet,
+        mint,
         systemProgram: SystemProgram.programId,
         tokenProgram: TOKEN_PROGRAM_ID,
       },
@@ -99,7 +100,7 @@ export class Processor {
     console.log(tx);
 
     await fs.rm("mint.md");
-    await fs.rm("token.md");
+    await fs.rm("wallet.md");
   }
 
   async initialMint() {
@@ -110,19 +111,19 @@ export class Processor {
     const vault = await this.program.account.vaultAccount.fetch(vaultPDA);
 
     const mint = await getMintId();
-    const vaultTokens = await getVaultTokenId();
+    const wallet = await getWalletId();
 
     if (vault.isMinted) throw new Error("Already minted");
 
     console.log("mint:", mint.toBase58());
     console.log("pda:", vaultPDA.toBase58());
-    console.log("vault tokens:", vaultTokens.toBase58());
+    console.log("vault tokens:", wallet.toBase58());
 
     const tx = await this.program.rpc.initialMint({
       accounts: {
         authority: this.authority.publicKey,
         vault: vaultPDA,
-        vaultTokens,
+        wallet,
         mint,
         tokenProgram: TOKEN_PROGRAM_ID,
       },

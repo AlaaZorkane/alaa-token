@@ -4,7 +4,7 @@ use anchor_lang::prelude::*;
 pub struct VaultAccount {
     pub initial_mint_amount: u64,
     pub authority: Pubkey,
-    pub tokens: Pubkey,
+    pub wallet: Pubkey,
     pub bump: u8,
     pub is_initialized: bool,
     pub is_minted: bool,

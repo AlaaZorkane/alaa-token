@@ -7,8 +7,8 @@ export const getMintId = async () => {
   return new PublicKey(id);
 };
 
-export const getVaultTokenId = async () => {
-  const [id] = (await fs.readFile("token.md", "utf8")).split("\n");
+export const getWalletId = async () => {
+  const [id] = (await fs.readFile("wallet.md", "utf8")).split("\n");
 
   return new PublicKey(id);
 };
