@@ -1,8 +1,8 @@
 [programs.localnet]
-alaatoken = "7vHLYGEkX8TnsqRW1bKLUAFPpwazpebBRNAF1AKdKkQm"
+alaatoken = "DgaUVK7Mz1ExQEH2g25i1GRt8xwhh13v9UU5y2ncGXit"
 
 [programs.devnet]
-alaatoken = "7vHLYGEkX8TnsqRW1bKLUAFPpwazpebBRNAF1AKdKkQm"
+alaatoken = "DgaUVK7Mz1ExQEH2g25i1GRt8xwhh13v9UU5y2ncGXit"
 
 [registry]
 url = "https://anchor.projectserum.com"
@@ -16,3 +16,4 @@ test = "yarn vitest"
 initialize = "yarn cli initialize"
 reset = "yarn cli reset"
 mint = "yarn cli mint"
+address = "cat token.md"

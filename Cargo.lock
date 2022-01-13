@@ -24,6 +24,7 @@ dependencies = [
  "anchor-lang",
  "anchor-spl",
  "borsh",
+ "bytemuck",
  "spl-token",
 ]
 

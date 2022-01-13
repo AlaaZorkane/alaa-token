@@ -6,10 +6,14 @@ pub enum ErrorCode {
     NoAlaa,
     #[msg("Max 16 characters!")]
     TooLong,
-    #[msg("Token initial mint was already initialized!")]
+    #[msg("Token already initialized!")]
     AlreadyInitialized,
     #[msg("Max supply already minted.")]
     AlreadyMinted,
     #[msg("Token not initialized.")]
     NotInitialized,
+    #[msg("Invalid root key!")]
+    NotRoot,
+    #[msg("Invalid PDA wallet owner!")]
+    NotWalletOwner,
 }

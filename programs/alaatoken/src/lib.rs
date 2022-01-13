@@ -2,70 +2,71 @@ pub mod errors;
 pub mod state;
 
 use anchor_lang::prelude::*;
-use anchor_spl::token::{self, InitializeMint, Mint, MintTo, Token, CloseAccount};
+use anchor_spl::{
+    associated_token::AssociatedToken,
+    token::{self, CloseAccount, Mint, MintTo, Token, TokenAccount},
+};
+use std::str::FromStr;
 
 use errors::ErrorCode;
-use state::TokenVaultAccount;
+use state::VaultAccount;
 
-declare_id!("7vHLYGEkX8TnsqRW1bKLUAFPpwazpebBRNAF1AKdKkQm");
+declare_id!("DgaUVK7Mz1ExQEH2g25i1GRt8xwhh13v9UU5y2ncGXit");
 
 #[program]
 pub mod alaatoken {
-    use anchor_lang::__private::bytemuck;
 
     use super::*;
 
     pub const DEFAULT_MAX_SUPPLY: u64 = 100_000; // in SOL
     pub const TOKEN_PDA_SEED: &[u8] = b"ALAA_TOKEN_VAULT";
+    pub const ROOT: &str = "4P3wA8rnnHuHsyTxTsES54mmzqdPKv7QQqHNfrgdXAnQ";
 
     pub fn initialize(ctx: Context<InitializeToken>, bump: u8) -> ProgramResult {
-        let vault = ctx.accounts.vault.clone();
-
-        if vault.is_initialized {
-            return Err(ErrorCode::AlreadyInitialized.into());
-        }
-
-        token::initialize_mint(ctx.accounts.into(), 0, &vault.key(), Some(&vault.key())).unwrap();
-
         let vault = &mut ctx.accounts.vault;
+
         vault.bump = bump;
+        vault.tokens = ctx.accounts.vault_tokens.key();
         vault.initial_mint_amount = DEFAULT_MAX_SUPPLY;
         vault.is_initialized = true;
         vault.is_minted = false;
         vault.is_freezed = false;
-        vault.authority = *ctx.accounts.authority.key;
+        vault.authority = ctx.accounts.authority.key();
 
         Ok(())
     }
 
-    pub fn reset(ctx: Context<Reset>, bump: u8) -> ProgramResult {
-        let seed = &[&[TOKEN_PDA_SEED, bytemuck::bytes_of(&bump)][..]];
+    // p.s: This doesn't close the mint account because cpi context fails somewhere
+    pub fn reset(ctx: Context<Reset>) -> ProgramResult {
+        let vault = ctx.accounts.vault.clone();
+
+        let seed = &[&[TOKEN_PDA_SEED, bytemuck::bytes_of(&vault.bump)][..]];
         let cpi_accounts = CloseAccount {
-            account: ctx.accounts.token.to_account_info(),
+            authority: vault.to_account_info(),
+            account: ctx.accounts.vault_tokens.to_account_info(),
             destination: ctx.accounts.authority.to_account_info(),
-            authority: ctx.accounts.vault.to_account_info()
         };
         let cpi_program = ctx.accounts.token_program.to_account_info();
         let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, seed);
 
         token::close_account(cpi_ctx).unwrap();
-        msg!("bump: {}", bump);
-        // msg!("cpi context: {:?}", cpi_ctx.program);
+
         Ok(())
     }
 
     pub fn initial_mint(ctx: Context<InitialMint>) -> ProgramResult {
         let vault = ctx.accounts.vault.clone();
 
-        if !vault.is_initialized {
-            return Err(ErrorCode::NotInitialized.into());
-        }
+        let seed = &[&[TOKEN_PDA_SEED, bytemuck::bytes_of(&vault.bump)][..]];
+        let cpi_accounts = MintTo {
+            to: ctx.accounts.vault_tokens.to_account_info(),
+            authority: vault.to_account_info(),
+            mint: ctx.accounts.mint.to_account_info(),
+        };
+        let cpi_program = ctx.accounts.token_program.to_account_info();
+        let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, seed);
 
-        if vault.is_minted {
-            return Err(ErrorCode::AlreadyMinted.into());
-        }
-
-        token::mint_to(ctx.accounts.into(), vault.initial_mint_amount).unwrap();
+        token::mint_to(cpi_ctx, vault.initial_mint_amount).unwrap();
 
         let vault = &mut ctx.accounts.vault;
         vault.is_minted = true;
@@ -81,55 +82,47 @@ pub struct InitializeToken<'info> {
         payer = authority,
         seeds = [alaatoken::TOKEN_PDA_SEED],
         bump = bump,
-        space = 8 + TokenVaultAccount::LEN
+        space = 8 + VaultAccount::LEN,
+        constraint = vault.is_initialized == false @ ErrorCode::AlreadyInitialized
     )]
-    vault: Account<'info, TokenVaultAccount>,
+    vault: Account<'info, VaultAccount>, // the PDA, owner of everything
     #[account(
         init,
         payer = authority,
-        space = Mint::LEN,
-        owner = token_program.key(), 
-        signer
+        mint::decimals = 0,
+        mint::authority = vault,
     )]
-    token: AccountInfo<'info>,
-    #[account(mut)]
-    authority: Signer<'info>,
+    mint: Account<'info, Mint>, // the mint account (holds the logic of the token)
+    #[account(
+        init,
+        payer = authority,
+        associated_token::mint = mint,
+        associated_token::authority = vault
+    )]
+    vault_tokens: Account<'info, TokenAccount>, // account that holds all tokens for the PDA
+    #[account(
+        mut,
+        constraint = authority.key() == Pubkey::from_str(alaatoken::ROOT).unwrap() @ ErrorCode::NotRoot,
+    )]
+    authority: Signer<'info>, // the authority of the PDA
     token_program: Program<'info, Token>,
     system_program: Program<'info, System>,
+    associated_token_program: Program<'info, AssociatedToken>,
     rent: Sysvar<'info, Rent>,
 }
 
-impl<'a, 'b, 'c, 'info> From<&mut InitializeToken<'info>>
-    for CpiContext<'a, 'b, 'c, 'info, InitializeMint<'info>>
-{
-    fn from(
-        accounts: &mut InitializeToken<'info>,
-    ) -> CpiContext<'a, 'b, 'c, 'info, InitializeMint<'info>> {
-        let cpi_accounts = InitializeMint {
-            mint: accounts.token.to_account_info(),
-            rent: accounts.rent.to_account_info(),
-        };
-
-        let cpi_program = accounts.token_program.to_account_info();
-        CpiContext::new(cpi_program, cpi_accounts)
-    }
-}
-
 #[derive(Accounts)]
-#[instruction(bump: u8)]
 pub struct Reset<'info> {
     #[account(
         mut,
         seeds = [alaatoken::TOKEN_PDA_SEED],
-        bump = bump,
-        has_one = authority
+        bump = vault.bump,
+        has_one = authority,
+        close = authority
     )]
-    vault: Account<'info, TokenVaultAccount>,
-    #[account(
-        mut,
-        owner = token_program.key(),
-    )]
-    token: AccountInfo<'info>,
+    vault: Account<'info, VaultAccount>,
+    #[account(mut)]
+    vault_tokens: Account<'info, TokenAccount>,
     #[account(mut)]
     authority: Signer<'info>,
     token_program: Program<'info, Token>,
@@ -137,30 +130,26 @@ pub struct Reset<'info> {
 }
 
 #[derive(Accounts)]
-#[instruction(bump: u8)]
 pub struct InitialMint<'info> {
     #[account(
         mut,
         seeds = [alaatoken::TOKEN_PDA_SEED],
-        bump = bump,
-        has_one = authority
+        bump = vault.bump,
+        has_one = authority,
+        constraint = vault.is_minted == false @ ErrorCode::AlreadyMinted
     )]
-    vault: Account<'info, TokenVaultAccount>,
+    vault: Account<'info, VaultAccount>,
+    #[account(
+        mut,
+        owner = token_program.key(),
+        constraint = vault_tokens.owner == vault.key() @ ErrorCode::NotWalletOwner,
+    )]
+    vault_tokens: Account<'info, TokenAccount>,
+    #[account(
+        mut,
+        owner = token_program.key()
+    )]
+    mint: Account<'info, Mint>,
     authority: Signer<'info>,
     token_program: Program<'info, Token>,
-}
-
-impl<'a, 'b, 'c, 'info> From<&mut InitialMint<'info>>
-    for CpiContext<'a, 'b, 'c, 'info, MintTo<'info>>
-{
-    fn from(accounts: &mut InitialMint<'info>) -> CpiContext<'a, 'b, 'c, 'info, MintTo<'info>> {
-        let cpi_accounts = MintTo {
-            to: accounts.vault.to_account_info(),
-            authority: accounts.vault.to_account_info(),
-            mint: accounts.vault.to_account_info(),
-        };
-
-        let cpi_program = accounts.token_program.to_account_info();
-        CpiContext::new(cpi_program, cpi_accounts)
-    }
 }

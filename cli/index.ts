@@ -23,7 +23,7 @@ const main = async () => {
       await processor.reset();
       break;
     case "mint":
-      // processor.mintToken();
+      await processor.initialMint();
       break;
     default:
       console.log("Invalid arg :(");

@@ -8,6 +8,7 @@
   },
   "scripts": {
     "test": "yarn vitest",
+    "anchor:deploy": "anchor build && anchor deploy",
     "anchor:test": "anchor test --skip-deploy --skip-build",
     "cli": "ts-node ./cli/index.ts"
   },
