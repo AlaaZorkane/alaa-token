@@ -32,7 +32,7 @@ export class Processor {
     this.authority = authority;
   }
 
-  async initialize() {
+  async setup() {
     const [vaultPDA, bump] = await PublicKey.findProgramAddress(
       this.TOKEN_PDA_SEED,
       this.program.programId
@@ -53,7 +53,7 @@ export class Processor {
     );
     console.log("vault tokens:", wallet.toBase58());
 
-    const tx = await this.program.rpc.initialize(bump, {
+    const tx = await this.program.rpc.setup(bump, {
       accounts: {
         vault: vaultPDA,
         mint: mint.publicKey,

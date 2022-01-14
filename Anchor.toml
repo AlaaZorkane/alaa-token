@@ -13,7 +13,7 @@ wallet = "/home/alaa/.config/solana/id.json"
 
 [scripts]
 test = "yarn vitest"
-initialize = "yarn cli initialize"
+setup = "yarn cli setup"
 reset = "yarn cli reset"
 mint = "yarn cli mint"
 address = "cat token.md"

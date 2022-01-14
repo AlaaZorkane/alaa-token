@@ -16,8 +16,8 @@ const main = async () => {
   const processor = new Processor(connection, program, authority);
 
   switch (directive) {
-    case "initialize":
-      await processor.initialize();
+    case "setup":
+      await processor.setup();
       break;
     case "reset":
       await processor.reset();
