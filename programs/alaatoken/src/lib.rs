@@ -19,10 +19,11 @@ declare_id!("DgaUVK7Mz1ExQEH2g25i1GRt8xwhh13v9UU5y2ncGXit");
 pub mod alaatoken {
     use super::*;
 
-    pub const DEFAULT_MAX_SUPPLY: u64 = 100_000; // in SOL
+    pub const DEFAULT_MAX_SUPPLY: u64 = 1_000_000;
     pub const TOKEN_PDA_SEED: &[u8] = b"ALAA_TOKEN_VAULT";
     pub const ROOT: &str = "4P3wA8rnnHuHsyTxTsES54mmzqdPKv7QQqHNfrgdXAnQ";
 
+    /// Setups the vault and creates appropriate accounts.
     pub fn setup(ctx: Context<Setup>, bump: u8) -> ProgramResult {
         let vault = &mut ctx.accounts.vault;
 
@@ -37,7 +38,8 @@ pub mod alaatoken {
         Ok(())
     }
 
-    // p.s: This doesn't close the mint account because cpi context fails somewhere
+    /// Resets the vault in its initial state and burns all remaining tokens.
+    /// PS: This doesn't close the mint account because cpi context fails somewhere
     pub fn reset(ctx: Context<Reset>) -> ProgramResult {
         let vault = &ctx.accounts.vault;
         let seed = vault_signature!(vault);
@@ -71,6 +73,8 @@ pub mod alaatoken {
         Ok(())
     }
 
+    /// Mints max supply tokens and transfers them to the vault account.
+    /// This also resets authority to suppress any future minting attempts.
     pub fn initial_mint(ctx: Context<InitialMint>) -> ProgramResult {
         let vault = &ctx.accounts.vault;
         let seed = vault_signature!(vault);
@@ -102,6 +106,20 @@ pub mod alaatoken {
 
         let vault = &mut ctx.accounts.vault;
         vault.is_minted = true;
+        Ok(())
+    }
+
+    /// Registers a specific github account
+    /// TODO: Add nonce, this can only be allowed once per login
+    /// TODO: Figure out a way to link login to authority
+    pub fn register(ctx: Context<Register>, bump: u8, login: String) -> ProgramResult {
+        let user = &mut ctx.accounts.user;
+
+        user.login = login;
+        user.bump = bump;
+        user.authority = ctx.accounts.authority.key();
+        user.created_at = Clock::get()?.unix_timestamp;
+
         Ok(())
     }
 }
