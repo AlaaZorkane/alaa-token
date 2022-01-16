@@ -1,0 +1,10 @@
+{
+  "name": "@alaatoken/idl",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {},
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^4.5.4"
+  }
+}
