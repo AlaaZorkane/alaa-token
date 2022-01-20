@@ -9,6 +9,14 @@
       // :) https://github.com/solana-labs/solana/pull/22425
       var global = globalThis;
     </script>
+    <script type="module">
+      // :))))) https://github.com/vitejs/vite/issues/3817#issuecomment-864450199
+      import { Buffer } from "buffer";
+      import process from "process";
+
+      window.Buffer = Buffer;
+      window.process = process;
+    </script>
   </head>
   <body>
     <div id="root"></div>
