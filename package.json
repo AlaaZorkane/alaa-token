@@ -15,7 +15,8 @@
     "anchor:deploy": "anchor build && anchor deploy && yarn generate:idl",
     "anchor:test": "anchor test --skip-deploy --skip-build",
     "cli": "ts-node ./cli/index.ts",
-    "generate:idl": "cp ./target/types/alaatoken.ts ./packages/idl/index.ts"
+    "====================== IDL ======================": "",
+    "idl:run": "cargo run -p idl-generator"
   },
   "devDependencies": {
     "@types/node": "^17.0.8",

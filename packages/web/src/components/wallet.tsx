@@ -24,6 +24,7 @@ export const Wallet = () => {
   }, [refetchSOL]);
 
   if (!wallet?.connected) return <ConnectWalletButton />;
+
   return (
     <div className="flex w-full flex-col items-center gap-2">
       <h5>

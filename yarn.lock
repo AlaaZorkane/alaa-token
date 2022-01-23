@@ -628,10 +628,33 @@
     estree-walker "^2.0.1"
     picomatch "^2.2.2"
 
+"@saberhq/anchor-contrib@^1.12.34":
+  version "1.12.34"
+  resolved "https://registry.yarnpkg.com/@saberhq/anchor-contrib/-/anchor-contrib-1.12.34.tgz#445b6f48f8b762d300a22ca89f5870efdb8b4e52"
+  integrity sha512-VebQaaJcREnafKMCip1tNUlAzlXI6LWR/Ia32QX//MOLGQhxWb5jKahdtrqHuZl51GUC2ZbsiVP850zBLEqmCA==
+  dependencies:
+    "@saberhq/solana-contrib" "^1.12.34"
+    eventemitter3 "^4.0.7"
+    lodash.camelcase "^4.3.0"
+    lodash.mapvalues "^4.6.0"
+    tslib "^2.3.1"
+
 "@saberhq/solana-contrib@^1.12.32":
   version "1.12.32"
   resolved "https://registry.yarnpkg.com/@saberhq/solana-contrib/-/solana-contrib-1.12.32.tgz#577f7462e7d18435c951a894f497f1195db75005"
   integrity sha512-PYnoVmk6ByX85J4GzXUqFUyx1Yi1TvWrpDnptF87Kzc2CPl3Lkhnktbkc4JlMOZYenoknh2114zxn+vbQ3fNNQ==
+  dependencies:
+    "@types/promise-retry" "^1.1.3"
+    "@types/retry" "^0.12.1"
+    promise-retry "^2.0.1"
+    retry "^0.13.1"
+    tiny-invariant "^1.2.0"
+    tslib "^2.3.1"
+
+"@saberhq/solana-contrib@^1.12.34":
+  version "1.12.34"
+  resolved "https://registry.yarnpkg.com/@saberhq/solana-contrib/-/solana-contrib-1.12.34.tgz#5855b612c6a3c5226f83304af1dc8423e3e4ff45"
+  integrity sha512-qdlAjyE7ZsZxZfCOmdKXChONVMm0lUttal11Hn28AmtBAyabsPWA9SsRRkPFUMWxIR2c+FgtphzWsxirfw0mOA==
   dependencies:
     "@types/promise-retry" "^1.1.3"
     "@types/retry" "^0.12.1"
@@ -878,6 +901,26 @@
   version "1.31.0"
   resolved "https://registry.yarnpkg.com/@solana/web3.js/-/web3.js-1.31.0.tgz#7a313d4c1a90b77f27ddbfe845a10d6883e06452"
   integrity sha512-7nHHx1JNFnrt15e9y8m38I/EJCbaB+bFC3KZVM1+QhybCikFxGMtGA5r7PDC3GEL1R2RZA8yKoLkDKo3vzzqnw==
+  dependencies:
+    "@babel/runtime" "^7.12.5"
+    "@ethersproject/sha2" "^5.5.0"
+    "@solana/buffer-layout" "^3.0.0"
+    bn.js "^5.0.0"
+    borsh "^0.4.0"
+    bs58 "^4.0.1"
+    buffer "6.0.1"
+    cross-fetch "^3.1.4"
+    jayson "^3.4.4"
+    js-sha3 "^0.8.0"
+    rpc-websockets "^7.4.2"
+    secp256k1 "^4.0.2"
+    superstruct "^0.14.2"
+    tweetnacl "^1.0.0"
+
+"@solana/web3.js@^1.32.0":
+  version "1.32.0"
+  resolved "https://registry.yarnpkg.com/@solana/web3.js/-/web3.js-1.32.0.tgz#b9821de52d0e773c363516c3dcef9be701295d82"
+  integrity sha512-jquZ/VBvM3zXAaTJvdWd9mlP0WiZaZqjji0vw5UAsb5IKIossrLhHtyUqMfo41Qkdwu1aVwf7YWG748i4XIJnw==
   dependencies:
     "@babel/runtime" "^7.12.5"
     "@ethersproject/sha2" "^5.5.0"
@@ -2187,6 +2230,16 @@ lodash-es@^4.17.21:
   resolved "https://registry.yarnpkg.com/lodash-es/-/lodash-es-4.17.21.tgz#43e626c46e6591b7750beb2b50117390c609e3ee"
   integrity sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==
 
+lodash.camelcase@^4.3.0:
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/lodash.camelcase/-/lodash.camelcase-4.3.0.tgz#b28aa6288a2b9fc651035c7711f65ab6190331a6"
+  integrity sha1-soqmKIorn8ZRA1x3EfZathkDMaY=
+
+lodash.mapvalues@^4.6.0:
+  version "4.6.0"
+  resolved "https://registry.yarnpkg.com/lodash.mapvalues/-/lodash.mapvalues-4.6.0.tgz#1bafa5005de9dd6f4f26668c30ca37230cc9689c"
+  integrity sha1-G6+lAF3p3W9PJmaMMMo3IwzJaJw=
+
 lodash.merge@^4.6.2:
   version "4.6.2"
   resolved "https://registry.yarnpkg.com/lodash.merge/-/lodash.merge-4.6.2.tgz#558aa53b43b661e1925a0afdfa36a9a1085fe57a"
@@ -2886,6 +2939,11 @@ typescript@^4.3.5, typescript@^4.5.4:
   version "4.5.4"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.5.4.tgz#a17d3a0263bf5c8723b9c52f43c5084edf13c2e8"
   integrity sha512-VgYs2A2QIRuGphtzFV7aQJduJ2gyfTljngLzjpfW9FoYZF6xuw1W0vW9ghCKLfcWrCFxK81CSGRAvS1pn4fIUg==
+
+typescript@^4.5.5:
+  version "4.5.5"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.5.5.tgz#d8c953832d28924a9e3d37c73d729c846c5896f3"
+  integrity sha512-TCTIul70LyWe6IJWT8QSYeA54WQe8EjQFU4wY52Fasj5UKx88LNYKCgBEHcOMOrFF1rKGbD8v/xcNWVUq9SymA==
 
 ua-parser-js@^0.7.30:
   version "0.7.31"

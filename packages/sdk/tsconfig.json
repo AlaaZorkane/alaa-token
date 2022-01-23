@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "typeRoots": ["./node_modules/@types"],
+    "experimentalDecorators": true,
+    "allowJs": true,
+    "downlevelIteration": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "lib": ["esnext"],
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "sourceMap": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "target": "es6",
+    "outDir": "./build"
+  },
+  "include": ["src/**/*.ts"]
+}
