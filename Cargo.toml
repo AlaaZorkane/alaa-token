@@ -1,2 +1,2 @@
 [workspace]
-members = ["programs/*", "packages/idl-generator"]
+members = ["programs/*"]

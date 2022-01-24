@@ -7,7 +7,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@alaatoken/idl": "*",
     "@emotion/react": "^11.7.1",
     "@emotion/styled": "^11.6.0",
     "@gokiprotocol/walletkit": "^1.6.4",
