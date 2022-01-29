@@ -1,8 +1,10 @@
 [programs.localnet]
 alaatoken = "DgaUVK7Mz1ExQEH2g25i1GRt8xwhh13v9UU5y2ncGXit"
+registrar = "BFq6fMJ4DuGriFeQs2uBPcYEzntU6NwVitD3LhujhRtv"
 
 [programs.devnet]
 alaatoken = "DgaUVK7Mz1ExQEH2g25i1GRt8xwhh13v9UU5y2ncGXit"
+registrar = "BFq6fMJ4DuGriFeQs2uBPcYEzntU6NwVitD3LhujhRtv"
 
 [registry]
 url = "https://anchor.projectserum.com"

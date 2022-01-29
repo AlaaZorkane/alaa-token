@@ -108,18 +108,4 @@ pub mod alaatoken {
         vault.is_minted = true;
         Ok(())
     }
-
-    /// Registers a specific github account
-    /// TODO: Add nonce, this can only be allowed once per login
-    /// TODO: Figure out a way to link login to authority
-    pub fn register(ctx: Context<Register>, bump: u8, login: String) -> ProgramResult {
-        let user = &mut ctx.accounts.user;
-
-        user.login = login;
-        user.bump = bump;
-        user.authority = ctx.accounts.authority.key();
-        user.created_at = Clock::get()?.unix_timestamp;
-
-        Ok(())
-    }
 }

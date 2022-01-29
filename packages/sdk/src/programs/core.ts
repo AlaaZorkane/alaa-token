@@ -4,7 +4,6 @@ import { AlaatokenIDL } from "../idls/alaatoken";
 export type CoreTypes = AnchorTypes<
   AlaatokenIDL,
   {
-    user: UserData;
     vault: VaultData;
   }
 >;
@@ -12,7 +11,6 @@ export type CoreTypes = AnchorTypes<
 export type CoreInfo = CoreTypes["State"];
 
 type Accounts = CoreTypes["Accounts"];
-export type UserData = Accounts["UserAccount"];
 export type VaultData = Accounts["VaultAccount"];
 
 export type MintInstruction = CoreTypes["Defined"][];

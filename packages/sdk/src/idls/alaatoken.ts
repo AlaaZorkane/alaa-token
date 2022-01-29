@@ -120,36 +120,6 @@ export type AlaatokenIDL =
         }
       ],
       "args": []
-    },
-    {
-      "name": "register",
-      "accounts": [
-        {
-          "name": "user",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "authority",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "bump",
-          "type": "u8"
-        },
-        {
-          "name": "login",
-          "type": "string"
-        }
-      ]
     }
   ],
   "accounts": [
@@ -185,30 +155,6 @@ export type AlaatokenIDL =
           {
             "name": "isFreezed",
             "type": "bool"
-          }
-        ]
-      }
-    },
-    {
-      "name": "UserAccount",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "login",
-            "type": "string"
-          },
-          {
-            "name": "bump",
-            "type": "u8"
-          },
-          {
-            "name": "authority",
-            "type": "publicKey"
-          },
-          {
-            "name": "createdAt",
-            "type": "i64"
           }
         ]
       }
@@ -375,36 +321,6 @@ export const AlaatokenJSON: AlaatokenIDL =
         }
       ],
       "args": []
-    },
-    {
-      "name": "register",
-      "accounts": [
-        {
-          "name": "user",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "authority",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "bump",
-          "type": "u8"
-        },
-        {
-          "name": "login",
-          "type": "string"
-        }
-      ]
     }
   ],
   "accounts": [
@@ -440,30 +356,6 @@ export const AlaatokenJSON: AlaatokenIDL =
           {
             "name": "isFreezed",
             "type": "bool"
-          }
-        ]
-      }
-    },
-    {
-      "name": "UserAccount",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "login",
-            "type": "string"
-          },
-          {
-            "name": "bump",
-            "type": "u8"
-          },
-          {
-            "name": "authority",
-            "type": "publicKey"
-          },
-          {
-            "name": "createdAt",
-            "type": "i64"
           }
         ]
       }
